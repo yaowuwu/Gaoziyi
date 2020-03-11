@@ -37,3 +37,16 @@ class User(models.Model):
             'avatar': self.avatar,
             'location': self.location,
         }
+
+
+class Profile(models.Model):
+    uid = models.IntegerField()
+    dating_location = models.CharField(max_length=10, verbose_name='目标城市')
+    min_distance = models.IntegerField(max_length=64, verbose_name='最小查找范围')
+    max_distance = models.IntegerField(max_length=64, verbose_name='最大查找范围')
+    min_dating_age = models.IntegerField(max_length=10, verbose_name='最小交友年龄', default=16)
+    max_dating_age = models.IntegerField(max_length=10, verbose_name='最大交友年龄', default=80)
+    dating_sex = models.CharField(max_length=10, verbose_name='匹配的性别')
+    vibration = models.BooleanField(default=True, verbose_name='开启震动')
+    only_matched = models.BooleanField(default=False, verbose_name='不让陌生人看我的相册')
+    auto_play = models.BooleanField(default=True, verbose_name='自动播放视频')
