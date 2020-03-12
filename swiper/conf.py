@@ -12,3 +12,9 @@ YZX_VCODE_ARGS = {
     'mobile': None,
     'param': None,
 }
+'''七牛云'''
+
+QN_ACCESS_KEY = 'AVFn8f1ve3AncfLNAfq5rhTddkKoaU2agS0Gkatz'
+QN_SECRET_KEY = 'neViCpaWFPIyWZ_3cbBGUBdDitrhnyapu9C43dMr'
+QN_BUCKET = 'gaoziyi'
+QN_BASEURL = 'http://q7357yrqg.bkt.clouddn.com'
