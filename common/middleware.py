@@ -5,10 +5,10 @@ from common import err
 
 
 class AuthMiddleware(MiddlewareMixin):
-    white_list = {
-        'api/user/get_vcode',
-        'api/user/submit_vcode',
-    }
+    white_list = [
+        '/api/user/get_vcode',
+        '/api/user/submit_vcode',
+    ]
 
     def process_request(self, request):
         if request.path in self.white_list:

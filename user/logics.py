@@ -29,7 +29,7 @@ def send_vcode(mobile):
         if response.status_code == 200:
             result = response.json()
             if result['msg'] == 'OK':
-                cache.set(key, args['param'], 900)
+                cache.set(key, args['param'], 10800)
                 return True
         print(response.text)
         return False
