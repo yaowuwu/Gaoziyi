@@ -8,7 +8,7 @@ from common import keys
 from user.models import User
 from user.models import Profile
 from user import forms
-from libs.qncloud import upload_to_qncloud
+from libs.qncloud import upload_to_qncloud, upload_data_to_qncloud
 
 
 def get_vcode(request):
@@ -72,8 +72,7 @@ def modify_profile(request):
 
 
 def upload_avatar(request):
-    ''' 头像上传 '''
-    avatar = request.POST.get('avatar')
-    file_url = upload_to_qncloud(avatar, 'aaa')
-    User.objects.filter(id=request.id).update(avatar=file_url)
+    '''个人照片上传'''
+    avatar = request.FILES.get('avatar')  # 获取上传的文件对象
+    logics.handle_avatar.delay(request.uid, avatar)
     return render_json()

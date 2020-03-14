@@ -3,8 +3,11 @@ import random
 
 from django.core.cache import cache
 
+from libs.qncloud import upload_data_to_qncloud
 from swiper import conf
 from common import keys
+from user.models import User
+from task import celery_app
 
 
 def gen_randcode(length=6):
@@ -12,6 +15,7 @@ def gen_randcode(length=6):
     start = 10 ** (length-1)
     end = 10 ** length - 1
     return str(random.randint(start, end))
+
 
 def send_vcode(mobile):
     '''发送短信验证码'''
@@ -33,3 +37,14 @@ def send_vcode(mobile):
                 return True
         print(response.text)
         return False
+
+
+@celery_app.task
+def handle_avatar(uid, avatar_file):
+    # 将文件上传到七牛云
+    filename = f'Avatar-{uid}'  # Python3.6 以后的版本支持这种语法
+    filedata = avatar_file.read()
+    avatar_url = upload_data_to_qncloud(filename, filedata)
+
+    # 将图片的链接保存到数据库
+    User.objects.filter(id=uid).update(avatar=avatar_url)
