@@ -49,7 +49,7 @@ def show_profile(request):
     user = User.objects.get(id=request.uid)
     result = {}
     result.update(user.to_dict())
-    result.update(user.profile.to_dict())
+
     return render_json(result)
 
 
