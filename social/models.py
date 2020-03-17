@@ -1,5 +1,6 @@
 from django.db import models
 from django.db import IntegrityError
+from common import err
 # Create your models here.
 
 
@@ -19,22 +20,27 @@ class Swiper(models.Model):
 
     @classmethod
     def swipe(cls, uid, sid, stype):
+        '''增加一次滑动记录'''
         if stype not in ['like', 'superlike', 'dislike']:
-            return '滑动类型错误'
-
+            raise err.StypeErr('滑动类型错误')
         try:
             cls.objects.create(uid=uid, sid=sid, stype=stype)
         except IntegrityError:
-            return '重复滑动'
+            raise err.SwipeRepeatErr('重复滑动')
 
     @classmethod
     def is_liked(cls, uid, sid):
         '''检查是否喜欢过某人'''
         like_styles = ['like', 'superlike']
-        return cls.objects.filter(uid=uid, sid=sid, stype__in=like_styles).exists()
+        try:
+            swipe = cls.objects.get(uid=uid, sid=sid)
+            return swipe.stype in like_styles
+        except cls.DoesNotExist:
+            return None
 
 
 class Friend(models.Model):
+    '''好友表'''
     uid1 = models.IntegerField(verbose_name='好友ID')
     uid2 = models.IntegerField(verbose_name='好友ID')
 
@@ -43,6 +49,7 @@ class Friend(models.Model):
 
     @staticmethod
     def sort_uid(uid1, uid2):
+        '''为uid排序'''
         if uid1 > uid2:
             return uid2, uid1
         else:
@@ -50,5 +57,9 @@ class Friend(models.Model):
 
     @classmethod
     def make_friends(cls, uid1, uid2):
+        '''建立好友关系'''
         uid1, uid2 = cls.sort_uid(uid1, uid2)
-        return cls.objects.create(uid1=uid1, uid2=uid2)
+        try:
+            return cls.objects.create(uid1=uid1, uid2=uid2)
+        except IntegrityError:
+            pass

@@ -26,4 +26,6 @@ urlpatterns = [
     url(r'^api/user/upload_avatar', user_api.upload_avatar),
     url(r'^api/social/rcmd_user', social_api.rcmd_user),
     url(r'^api/social/like', social_api.like),
+    url(r'^api/social/superlike', social_api.superlike),
+    url(r'^api/social/dislike', social_api.dislike),
 ]

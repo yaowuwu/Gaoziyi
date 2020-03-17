@@ -18,7 +18,7 @@ def get_vcode(request):
     if is_successed:
         return render_json()
     else:
-        return render_json(code=err.VCODE_SEND_ERR)
+        raise err.VcodeSendErr('验证码发送失败')
 
 
 @require_http_methods(['POST'])
@@ -41,7 +41,7 @@ def submit_vcode(request):
         request.session['uid'] = user.id
         return render_json(user.to_dict())
     else:
-        return render_json(code=err.VCODE_ERR)
+        raise err.VcodeErr('验证码错误')
 
 
 def show_profile(request):
@@ -63,7 +63,7 @@ def modify_profile(request):
         errors = {}
         errors.update(user_form.errors)
         errors.update(profile_form.errors)
-        return render_json(errors, err.PROFILE_ERR)
+        raise err.ProfileErr(errors)
     # 更新user数据
     User.objects.filter(id=request.uid).update(**user_form.cleaned_data)
     # 更新profile数据
