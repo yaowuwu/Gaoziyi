@@ -63,3 +63,22 @@ class Friend(models.Model):
             return cls.objects.create(uid1=uid1, uid2=uid2)
         except IntegrityError:
             pass
+
+    @classmethod
+    def break_off(cls, uid1, uid2):
+        '''解除好友关系'''
+        uid1, uid2 = cls.sort_uid(uid1, uid2)
+        cls.objects.filter(uid1=uid1, uid2=uid2).delete()
+
+    @classmethod
+    def friend_id_list(cls, uid):
+        '''好友ID列表'''
+        query_condition = models.Q(uid1=uid) | models.Q(uid2=uid)
+        frd_record = cls.objects.filter(query_condition)
+        fid_list = []
+        for frd in frd_record:
+            if frd.uid1 == uid:
+                fid_list.append(frd.uid2)
+            else:
+                fid_list.append(frd.uid2)
+        return fid_list

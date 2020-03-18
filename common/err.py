@@ -24,3 +24,6 @@ ProfileErr = gen_logic_err('ProfileErr', 1003)          # 用户资料表单数�
 SidErr = gen_logic_err('SidErr', 1004)                  # SID 错误
 StypeErr = gen_logic_err('StypeErr', 1005)              # 滑动类型错误
 SwipeRepeatErr = gen_logic_err('SwipeRepeatErr', 1006)  # 重复滑动
+RewindLimitErr = gen_logic_err('RewindLimitErr', 1007)  # 反悔次数到达限制
+NoneSwipe = gen_logic_err('NoneSwipe', 1008)            # 当前没有反悔数据
+RewindTimeout = gen_logic_err('RewindTimeout', 1009)    # 反悔超时

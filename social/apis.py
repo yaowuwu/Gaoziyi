@@ -1,6 +1,8 @@
 
 from libs.http import render_json
 from social import logics
+from social.models import Friend
+from user.models import User
 
 
 def rcmd_user(request):
@@ -37,6 +39,7 @@ def rewind(request):
     - 每天允许反悔 3 次
     - 反悔的记录只能是五分钟之内的
     '''
+    logics.rewind_swipe(request.uid)
     return render_json()
 
 
@@ -46,4 +49,14 @@ def show_users_liked_me(request):
     - 我还没有滑过对方
     - 对方右滑或者上滑过自己
     '''
-    return render_json()
+    users = logics.who_is_like_me(request.uid)
+    result = [user.to_dict() for user in users]
+    return render_json(result)
+
+
+def friends(request):
+    '''好友列表'''
+    fid_list = Friend.friend_id_list(request.uid)
+    users = User.objects.filter(id__in=fid_list)
+    result = [user.to_dict() for user in users]
+    return render_json(result)
