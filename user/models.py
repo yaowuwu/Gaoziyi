@@ -1,3 +1,5 @@
+import datetime
+
 from django.db import models
 
 from vip.models import Vip
@@ -36,6 +38,30 @@ class User(models.Model):
         if not hasattr(self, '_profile'):
             self._profile, _ = Profile.objects.get_or_create(id=self.id)
         return self._profile
+
+    @property
+    def vip(self):
+        '''用户对应的vip'''
+        if self.is_vip_expried():
+            self.set_vip(1)
+        if not hasattr(self, '_vip'):
+            self._vip = Vip.objects.get(id=self.vip_id)
+        return self._vip
+
+    def set_vip(self, vip_id):
+        '''为用户设置vip'''
+        #取出 vip 数据
+        vip = Vip.objects.get(id=vip_id)
+        # 修改用户数据并保存
+        self.vip_id = vip_id
+        self.vip_end = datetime.datetime.now() + datetime.timedelta(vip.duration)
+        self._vip = vip
+        self.save()
+
+    def is_vip_expried(self):
+        '''检查vip是否过期'''
+        now = datetime.datetime.now()
+        return now >= self.vid_end
 
     def to_dict(self):
         return {
