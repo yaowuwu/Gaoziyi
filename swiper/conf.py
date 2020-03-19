@@ -3,6 +3,14 @@
 程序自身业务配置 和 第三方平台配置
 '''
 
+
+REDIS = {
+    'host': 'localhost',
+    'port': 6379,
+    'db': 7,
+}
+
+
 YZX_API = 'https://open.ucpaas.com/ol/sms/sendsms'
 YZX_VCODE_ARGS = {
     'appid': 'c153ca163aaa4b9a8d94568c3e8e8fa8',

@@ -17,6 +17,8 @@ from django.conf.urls import url
 from django.contrib import admin
 from user import apis as user_api
 
+from social import apis as social_api
+
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^api/user/get_vcode', user_api.get_vcode),
@@ -24,5 +26,13 @@ urlpatterns = [
     url(r'^api/user/show_profile', user_api.show_profile),
     url(r'^api/user/modify_profile', user_api.modify_profile),
     url(r'^api/user/upload_avatar', user_api.upload_avatar),
+
+    url(r'^api/social/rcmd_user', social_api.rcmd_user),
+    url(r'^api/social/like', social_api.like),
+    url(r'^api/social/superlike', social_api.superlike),
+    url(r'^api/social/dislike', social_api.dislike),
+    url(r'^api/social/rewind', social_api.rewind),
+    url(r'^api/social/show_users_liked_me', social_api.show_users_liked_me),
+    url(r'^api/social/friends', social_api.friends),
 
 ]
