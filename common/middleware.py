@@ -15,6 +15,7 @@ class AuthMiddleware(MiddlewareMixin):
             return
         uid = request.session.get('uid')
         if not uid:
+
             return render_json(code=err.LogicError.code)
         else:
             request.uid = uid

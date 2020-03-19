@@ -3,6 +3,7 @@
 OK = 0                 # 正常
 
 
+
 class LogicError(Exception):
     code = OK
     data = 'OK'
@@ -27,3 +28,4 @@ SwipeRepeatErr = gen_logic_err('SwipeRepeatErr', 1006)  # 重复滑动
 RewindLimitErr = gen_logic_err('RewindLimitErr', 1007)  # 反悔次数到达限制
 NoneSwipe = gen_logic_err('NoneSwipe', 1008)            # 当前没有反悔数据
 RewindTimeout = gen_logic_err('RewindTimeout', 1009)    # 反悔超时
+

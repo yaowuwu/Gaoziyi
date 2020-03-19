@@ -49,8 +49,10 @@ class Profile(models.Model):
     dating_location = models.CharField(max_length=10, choices=User.LOCATION, default='北京', verbose_name='目标城市')
     min_distance = models.IntegerField(max_length=64, verbose_name='最小查找范围', default=1)
     max_distance = models.IntegerField(max_length=64, verbose_name='最大查找范围', default=60)
+
     min_dating_age = models.IntegerField(verbose_name='最小交友年龄', default=16)
     max_dating_age = models.IntegerField(verbose_name='最大交友年龄', default=80)
+
     dating_gender = models.CharField(max_length=10, choices=User.GENDER, default='female', verbose_name='匹配的性别')
     vibration = models.BooleanField(default=True, verbose_name='开启震动')
     only_matched = models.BooleanField(default=False, verbose_name='不让陌生人看我的相册')
