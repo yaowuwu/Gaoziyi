@@ -1,5 +1,6 @@
 from django.db import models
 
+from vip.models import Vip
 # Create your models here.
 
 
@@ -26,6 +27,9 @@ class User(models.Model):
     birthday = models.DateField(default='2000-01-01', verbose_name='生日')
     avatar = models.CharField(max_length=256, verbose_name='个人形象的URL')
     location = models.CharField(max_length=10, verbose_name='常居地', choices=LOCATION, default='北京')
+
+    vip_id = models.IntegerField(default=1, verbose_name='用户对应的会员ID')
+    vid_end = models.DateTimeField(default='2200-02-02', verbose_name='会员过期时间')
 
     @property
     def profile(self):
