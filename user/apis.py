@@ -1,3 +1,5 @@
+import logging
+
 from django.core.cache import cache
 from django.views.decorators.http import require_http_methods
 
@@ -8,7 +10,9 @@ from common import keys
 from user.models import User
 from user.models import Profile
 from user import forms
-from libs.qncloud import upload_to_qncloud, upload_data_to_qncloud
+from libs.cache import rds
+
+inflog = logging.getLogger('inf')
 
 
 def get_vcode(request):
@@ -18,9 +22,7 @@ def get_vcode(request):
     if is_successed:
         return render_json()
     else:
-
         raise err.VcodeSendErr('验证码发送失败')
-
 
 
 @require_http_methods(['POST'])
@@ -43,19 +45,25 @@ def submit_vcode(request):
         request.session['uid'] = user.id
         return render_json(user.to_dict())
     else:
-
         raise err.VcodeErr('验证码错误')
-
 
 
 def show_profile(request):
     ''' 查看个人交友资料 '''
-    user = User.objects.get(id=request.uid)
+    key = keys.USER_PROFILE_K % request.uid
+
+    # 先从缓存中获取数据
+    # result = rds.get(key, {})
+    # inflog.debug('从缓存中获取:%s' % result)
+    # 如果result为空值，则从数据库中获取数据
+    # if not result:
     result = {}
+    user = User.objects.get(id=request.uid)  # 从数据库中获取user
     result.update(user.to_dict())
-
-
-
+    result.update(user.profile.to_dict())    # 从数据库中获取profile
+        # inflog.debug('从数据库中获取: %s' % result)
+        # rds.set(key, result)                     # 将结果保存到缓存中
+        # inflog.debug('将数据写入缓存')
     return render_json(result)
 
 
@@ -76,6 +84,8 @@ def modify_profile(request):
     User.objects.filter(id=request.uid).update(**user_form.cleaned_data)
     # 更新profile数据
     Profile.objects.update_or_create(id=request.uid, defaults=profile_form.cleaned_data)
+    key = keys.USER_PROFILE_K % request.uid
+    rds.delete(key)
     return render_json()
 
 

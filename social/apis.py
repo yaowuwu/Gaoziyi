@@ -1,9 +1,12 @@
+import logging
 
 from libs.http import render_json
 from social import logics
 from social.models import Friend
 from user.models import User
 from vip.logics import perm_require
+
+inflog = logging.getLogger('inf')
 
 
 def rcmd_user(request):
@@ -17,6 +20,7 @@ def like(request):
     '''喜欢右滑'''
     sid = int(request.POST.get('sid', 0))
     is_matched = logics.like_someone(request.uid, sid)
+    inflog.debug(f'User({request.uid}) like User({sid}): {is_matched}')
     return render_json({'is_matched': is_matched})
 
 
@@ -25,6 +29,7 @@ def superlike(request):
     '''超级喜欢(上滑)'''
     sid = int(request.POST.get('sid', 0))
     is_matched = logics.superlike_someone(request.uid, sid)
+    inflog.debug(f'User({request.uid}) superlike User({sid}): {is_matched}')
     return render_json({'is_matched': is_matched})
 
 
@@ -32,6 +37,7 @@ def dislike(request):
     '''不喜欢(左滑)'''
     sid = int(request.POST.get('sid', 0))
     logics.dislike_someone(request.uid, sid)
+    inflog.debug(f'User({request.uid}) dislike User({sid})')
     return render_json()
 
 

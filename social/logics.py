@@ -18,7 +18,7 @@ def rcmd_users_from_q(uid):
     return User.objects.filter(id__in=uid_list)
 
 
-def rcmd_users_from_db(uid, num, ):
+def rcmd_users_from_db(uid, num):
     '''为用户推荐一些可以交友的对象'''
     user = User.objects.get(id=uid)
     today = datetime.date.today()
@@ -77,7 +77,7 @@ def superlike_someone(uid, sid):
     rds.lrem(name, 1, sid)
     # 检查对方是否喜欢过自己，如果是则匹配成好友
     is_liked = Swiper.is_liked(sid, uid)
-    if is_liked == True:
+    if is_liked is True:
         Friend.make_friends(uid, sid)
         return True
     elif is_liked is None:
