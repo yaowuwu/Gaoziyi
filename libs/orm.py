@@ -64,7 +64,7 @@ def to_dict(self, exclude=()):
         name = field.attname
         value = getattr(self, name)
         if name not in exclude:
-            #   将特色类型强转成 str 类型
+            #   将特殊类型强转成 str 类型
             if isinstance(value, force_str_types):
                 value = str(value)
             attr_dict[name] = value

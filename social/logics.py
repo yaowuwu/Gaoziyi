@@ -8,6 +8,7 @@ from social.models import Friend
 from common import err
 from common import keys
 from libs.cache import rds
+from swiper import conf
 
 
 def rcmd_users_from_q(uid):
@@ -51,14 +52,29 @@ def rcmd_users(uid):
     return user_from_q | user_from_db
 
 
+def record_swipe_to_rds(uid, sid, stype):
+    # 在执行滑动时将必要的数据添加到redis中
+    name = keys.FIRST_RCMD_Q % uid
+    with rds.pipeline() as pipe:
+        # 开启redis事务
+        pipe.watch(name, keys.HOT_RANK_K)
+        pipe.multi()
+        # 强制从优先队列中删除sid
+        pipe.lrem(name, 1, sid)
+        # 处理滑动积分
+        score = conf.SWIPE_SCORE[stype]
+        pipe.zincrby(keys.HOT_RANK_K, score, sid)
+
+        pipe.execute()
+
+
 def like_someone(uid, sid):
     '''喜欢右滑了某人'''
     if not sid or uid == sid:
         raise err.SidErr('SID 错误')
     Swiper.swipe(uid, sid, 'like')
-    # 强制从优先队列中删除sid
-    name = keys.FIRST_RCMD_Q % uid
-    rds.lrem(name, 1, sid)
+
+    record_swipe_to_rds(uid, sid, 'like')
     # 检查对方是否喜欢过自己，如果是则匹配成好友
     if Swiper.is_liked(sid, uid):
         Friend.make_friends(uid, sid)
@@ -72,9 +88,8 @@ def superlike_someone(uid, sid):
     if not sid or uid == sid:
         raise err.SidErr('SID 错误')
     Swiper.swipe(uid, sid, 'superlike')
-    # 强制从优先队列中删除sid
-    name = keys.FIRST_RCMD_Q % uid
-    rds.lrem(name, 1, sid)
+
+    record_swipe_to_rds(uid, sid, 'superlike')
     # 检查对方是否喜欢过自己，如果是则匹配成好友
     is_liked = Swiper.is_liked(sid, uid)
     if is_liked is True:
@@ -82,7 +97,7 @@ def superlike_someone(uid, sid):
         return True
     elif is_liked is None:
         other_first_q = keys.FIRST_RCMD_Q % sid
-        rds.rpush(other_first_q, uid) # 将 UID 添加到对方的优先推荐队列
+        rds.rpush(other_first_q, uid)  # 将 UID 添加到对方的优先推荐队列
         return False
     else:
         return False
@@ -94,9 +109,8 @@ def dislike_someone(uid, sid):
         raise err.SidErr('SID 错误')
 
     Swiper.swipe(uid, sid, 'dislike')
-    # 强制从优先列表中删除
-    my_first_q = keys.FIRST_RCMD_Q % sid
-    rds.lrem(my_first_q, 1, sid)
+
+    record_swipe_to_rds(uid, sid, 'dislike')
 
 
 def rewind_swipe(uid):
@@ -151,3 +165,29 @@ def who_is_like_me(uid):
                                     .exclude(uid__in=sid_list)\
                                     .values_list('uid', flat=True)
     return User.objects.filter(id__in=uid_list)
+
+
+def get_top_n(num):
+    origin_data = rds.zrevrange(keys.HOT_RANK_K, 0, num-1, withscores=True)
+
+    # 对原始排名数据进行类型转换
+    # rank_data = [
+    #   [53, 4953],
+    #   [60, 4852],
+    #   [96, 4814],
+    #   [11, 4586],
+    #   ...
+    # ]
+    rank_data = [[int(uid), int(score)] for uid, score in origin_data]
+    # 取出每一项的uid获取每个uid的用户信息
+    uid_list = [uid for uid, _ in rank_data]
+    users = User.objects.filter(id__in=uid_list)
+    #  将user按照uid_list排序
+    users = sorted(users, key=lambda user: uid_list.index(user.id))
+    result = {}
+    for idx, user in enumerate(users):
+        rank = idx + 1
+        user_info = user.to_dict(exclude=['phonenum', 'birthday', 'location', 'vip_id', 'vip_end'])
+        user_info['score'] = rank_data[idx][1]
+        result[rank] = user_info
+    return result

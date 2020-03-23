@@ -9,7 +9,12 @@ REDIS = {
     'port': 6379,
     'db': 7,
 }
-
+# 滑动积分的配置
+SWIPE_SCORE = {
+    'like': 5,
+    'superlike': 7,
+    'dislike': -5,
+}
 
 YZX_API = 'https://open.ucpaas.com/ol/sms/sendsms'
 YZX_VCODE_ARGS = {
