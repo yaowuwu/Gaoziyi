@@ -1,4 +1,5 @@
 import logging
+import datetime
 
 from django.db import models
 from django.db.models import query
@@ -54,6 +55,22 @@ def get(self, *args, **kwargs):
     return model_obj
 
 
+def to_dict(self, exclude=()):
+    '''将当前模型转换为 dict 类型'''
+    attr_dict = {}
+    # 需要强制转换成字符串类型
+    force_str_types = (datetime.datetime, datetime.date, datetime.time)
+    for field in self._meta.fields:
+        name = field.attname
+        value = getattr(self, name)
+        if name not in exclude:
+            #   将特色类型强转成 str 类型
+            if isinstance(value, force_str_types):
+                value = str(value)
+            attr_dict[name] = value
+    return attr_dict
+
+
 def patch_model():
     ''' 通过 Monkey Patch 的方式为 DjangoORM 增加缓存处理 '''
     # 修改save的方法
@@ -63,3 +80,5 @@ def patch_model():
     # 修改get方法
     query.QuerySet._get = query.QuerySet.get
     query.QuerySet.get = get
+
+    models.Model.to_dict = to_dict
